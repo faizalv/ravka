@@ -1,0 +1,67 @@
+Switch statement ("cek") specs:
+- The tag can be any expression supported
+- Case clauses ("kalo") will fall through automatically, can be stopped by the control flow "berhenti"
+- "kalo" can check for multiple expression seperated by comma
+- If the value is BasicLit, a jumper will be created
+- The "cek" clause "kalo" can evaluates multiple value for the same statement, it acts like empty fall through
+- The first BasicLit will be the parent, it will be the key for statements list it represents
+- The other will then point to the parent key in an "alias table"
+- If the one of the value that's not the first is an expression (binary, unary, ident) it will keyed by string identifier and pointing to the parent key
+- If the first or all of the values are not BasicLit, a jumper table will not be created
+- Instead it will executed like a normal IfStmt ("kalo") with OR ("||") comparison
+
+
+
+
+
+
+
+//declaration
+main       : decls
+           | assign
+decls      : func_decl+ EOF
+func_decl  : "fungsi" IDENT func_type block_stmt
+func_type  : "(" PARAM* ")"
+block_stmt : "{" stmt* "}"
+
+
+//statement
+stmt       : assign
+           | print
+           | if
+           | for
+assign     : or ((":=" | "=") or)*
+           | inc_dec
+inc_dec    : (or | IDENT)("++" | "--")
+print      : "cetak" or
+           | "cetakb" or
+if         : "kalo" or block_stmt
+else       : "lainnya" if
+           | block_stmt
+for        : "ulangi kalo" expr block_stmt
+switch     : "cek" (or | IDENT) "{" (clause)+ (def_clause)* "}"
+case       : "kalo" (NUMBER | STRING) ":" ((stmt)* )+ ("berhenti")*
+def_case   : "lainnya" ":" (stmt)*
+func_call  : IDENT "()"
+
+
+//basic expression
+or         : and ("||" and)*
+and        : compare ("&&" compare)*
+compare    : term (("<" | "<=" | ">" | ">=" | ("==" | "persis") | "!=" term)*
+term       : factor (("+" | "-") factor)*
+factor     : unary (("*" | "/") unary)*
+unary      : ("!" | "-")* paren
+paren      : "(" or ")"
+           | simplest
+simplest   : BASIC_LIT | NUMBER | IDENT
+
+
+//lexer
+PARAM      : (IDENT ("," IDENT)*)*
+BASIC_LIT  : "bener" | "salah" | "kosong" | NUMBER | STRING
+NUMBER     : DIGIT+
+STRING     : "\"" <any except "\"">* "\""
+IDENT      : ALPHA+
+ALPHA      : "a" ... "z" | "A" ... "Z" | "_"
+DIGIT      : "0" ... "9";

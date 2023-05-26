@@ -1,0 +1,43 @@
+fungsi utama() {
+    angka := 2
+    a := angka
+    b := 10 * a +  10 * angka / 4
+    c := a -- b
+
+    x := kedua()
+    x = bener
+    ulangi kalo x {
+        cetak "hello world"
+        x = salah
+    }
+
+    cek a {
+        kalo 10:
+            cetakbaris "dapet 10"
+            berhenti
+        kalo 20:
+            atau
+        kalo 30:
+            atau
+        kalo 40:
+            cetakbaris "dapet > 10 != 50"
+        lainnya:
+            cetakbaris "wah dapet 50"
+    }
+
+    cetakbaris a
+}
+
+fungsi kedua(): angka | eror {
+    x := 10
+    kasi x
+}
+
+fungsi ketiga(x angka) ngasih sembarang {
+    kalo x == 2 {
+        kasi "hore"
+    } lainnya {
+        kasi "meh"
+    }
+}
+
