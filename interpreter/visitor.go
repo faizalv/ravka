@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	VisitModeOneLine int = iota
+	VisitModeSingleLine int = iota
 	VisitModeMultiLines
 )
 
@@ -34,7 +34,7 @@ type Visitor struct {
 
 func NewVisitor(ss storage.SymbolInterface, jm storage.JumperInterface) *Visitor {
 	return &Visitor{
-		VisitModeOneLine,
+		VisitModeSingleLine,
 		ss,
 		jm,
 	}
@@ -558,7 +558,7 @@ func (v *Visitor) visitDeclsStmt(node ast.Decls) error {
 }
 
 func (v *Visitor) visit(node ast.Node) (*crate, error) {
-	if v.visitMode != VisitModeOneLine && v.visitMode != VisitModeMultiLines {
+	if v.visitMode != VisitModeSingleLine && v.visitMode != VisitModeMultiLines {
 		return nil, errors.New(" visitor eror: visit mode tidak terdefinisi")
 	}
 

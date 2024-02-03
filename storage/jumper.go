@@ -13,6 +13,7 @@ type JumperInterface interface {
 	SetDefault(stmt []ast.Stmt)
 	GetDefault() ([]ast.Stmt, error)
 	SetAlias(alias string, targetKey string)
+	CleanUp()
 }
 
 type JumperColumn struct {
@@ -78,4 +79,9 @@ func (j *Jumper) GetDefault() ([]ast.Stmt, error) {
 
 func (j *Jumper) SetAlias(alias string, targetKey string) {
 	j.aliases[alias] = targetKey
+}
+
+func (j *Jumper) CleanUp() {
+	j.jumpers = make(map[string]JumperTable)
+	j.aliases = make(JumperAliasTable)
 }

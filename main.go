@@ -8,6 +8,7 @@ import (
 	"ravka/interpreter"
 	"ravka/lexer"
 	"ravka/parser"
+	"ravka/runtime"
 	"ravka/storage"
 )
 
@@ -15,6 +16,16 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	symbol := storage.NewSymbol()
 	jumper := storage.NewJumper()
+	lx := lexer.NewLexer()
+	parseRuntime := runtime.NewParseRuntime(lx, jumper)
+	exprParser := parser.NewExprMaster(parseRuntime)
+	stmtParser := parser.NewStmtMaster(parseRuntime)
+	//languageParser, e := parser.NewParser(parseRuntime, stmtParser, exprParser)
+	//if e != nil {
+	//	println(e.Error())
+	//	stdout()
+	//}
+	//mainRuntimeContainer := runtime.GetRuntimeContainer(parseRuntime)
 	stdout()
 	for scanner.Scan() {
 		input := scanner.Text()
@@ -40,7 +51,7 @@ func main() {
 
 				inputType = lexer.FILE
 				symbol = storage.NewSymbol()
-				jumper = storage.NewJumper()
+				jumper.CleanUp()
 			} else {
 				print("Empty bro")
 				stdout()
@@ -55,13 +66,13 @@ func main() {
 		}
 
 		vst := interpreter.NewVisitor(symbol, jumper)
-		lx := lexer.NewLexer(inputType)
+		lx.SetInputType(inputType)
 		if inputType == lexer.FILE {
 			e = lx.PrepareFile(file)
 			vst.ChangeVisitMode(interpreter.VisitModeMultiLines)
 		} else {
 			e = lx.PrepareString(input)
-			vst.ChangeVisitMode(interpreter.VisitModeOneLine)
+			vst.ChangeVisitMode(interpreter.VisitModeSingleLine)
 		}
 
 		if e != nil {
@@ -70,7 +81,7 @@ func main() {
 			continue
 		}
 
-		prs, e := parser.NewParser(lx, jumper)
+		prs, e := parser.NewParser(parseRuntime, stmtParser, exprParser)
 		if e != nil {
 			println(e.Error())
 			stdout()
@@ -86,9 +97,10 @@ func main() {
 		}
 
 		stdout()
+		parseRuntime.Reset()
 	}
 }
 
 func stdout() {
-	print("input$ ")
+	print("perintah_$ ")
 }

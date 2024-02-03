@@ -19,6 +19,18 @@ type AcceptedType interface {
 	*os.File | string
 }
 
+type Interface interface {
+	SetInputType(inputType int)
+	Flush()
+	PrepareFile(file *os.File) error
+	PrepareString(input string) error
+	GetNextToken() (*token.Token, error)
+	GetInputType() int
+	CheckRows() bool
+	GetPosX() int
+	GetPosY() int
+}
+
 type Lexer struct {
 	inputType   int
 	xPointer    int
@@ -28,10 +40,20 @@ type Lexer struct {
 	currentRow  string
 }
 
-func NewLexer(inputType int) *Lexer {
-	return &Lexer{
-		inputType: inputType,
-	}
+func NewLexer() *Lexer {
+	return &Lexer{}
+}
+
+func (l *Lexer) SetInputType(inputType int) {
+	l.inputType = inputType
+}
+
+func (l *Lexer) Flush() {
+	l.xPointer = 0
+	l.yPointer = 0
+	l.rows = make([]string, 0)
+	l.currentChar = nil
+	l.currentRow = ""
 }
 
 func (l *Lexer) PrepareFile(file *os.File) error {
