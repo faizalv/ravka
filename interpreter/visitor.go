@@ -482,21 +482,41 @@ func (v *Visitor) visitCheckStmt(node ast.CheckStmt) error {
 	hasDefault := v.jumper.HasDefault(locId)
 
 	var (
-		e        error
-		jumperId string
-		stmts    []ast.Stmt
+		e          error
+		jumperId   string
+		stmts      []ast.Stmt
+		checkedVal ast.BasicLit
 	)
+
+	prefix := "s-"
 
 	switch typed := tag.(type) {
 	case ast.BasicLit:
-		prefix := "s-"
-		switch typed.Tok.Kind {
-		case token.INT:
-			prefix = "i-"
+		checkedVal = typed
+	case ast.Ident:
+		tok, e := v.symbol.GetVar(typed.Name)
+		if e != nil {
+			return e
 		}
 
-		jumperId = prefix + typed.Tok.Val
+		switch tok.Kind {
+		case token.INT:
+			fallthrough
+		case token.STRING:
+			checkedVal = ast.BasicLit{
+				Loc: ast.Position{},
+				Tok: &tok,
+			}
+		default:
+			return errors.New(" visitor eror: cek tag yang diberikan selain INT dan STRING")
+		}
 	}
+
+	if checkedVal.Tok.Kind == token.INT {
+		prefix = "i-"
+	}
+
+	jumperId = prefix + checkedVal.Tok.Val
 
 	stmts, e = v.jumper.GetByKey(jumperId)
 	if e != nil {
