@@ -2,8 +2,8 @@ package storage
 
 import (
 	"errors"
-	"ravka/ast"
 
+	"ravka/ast"
 	"ravka/token"
 )
 

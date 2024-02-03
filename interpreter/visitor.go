@@ -2,10 +2,11 @@ package interpreter
 
 import (
 	"errors"
+	"strconv"
+
 	"ravka/ast"
 	"ravka/storage"
 	"ravka/token"
-	"strconv"
 )
 
 const (

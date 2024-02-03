@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"ravka/token"
 	"strconv"
+
+	"ravka/token"
 )
 
 type Position struct {
