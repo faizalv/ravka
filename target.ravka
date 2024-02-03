@@ -2,7 +2,7 @@ fungsi utama() {
     angka := 2
     a := angka
     b := 10 * a +  10 * angka / 4
-    c := a -- b
+    c := a - -b
 
     x := kedua()
     x = bener
@@ -20,12 +20,12 @@ fungsi utama() {
         kalo 30:
             atau
         kalo 40:
-            cetakbaris "dapet > 10 != 50"
+            cetakb "dapet > 10 != 50"
         lainnya:
-            cetakbaris "wah dapet 50"
+            cetakb "wah dapet 50"
     }
 
-    cetakbaris a
+    cetakb a
 }
 
 fungsi kedua(): angka | eror {
