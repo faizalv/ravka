@@ -32,6 +32,7 @@ stmt       : assign
            | for
 assign     : or ((":=" | "=") or)*
            | inc_dec
+expr_stmt  : call
 inc_dec    : (or | IDENT)("++" | "--")
 print      : "cetak" or
            | "cetakb" or
@@ -42,7 +43,6 @@ for        : "ulangi kalo" expr block_stmt
 switch     : "cek" (or | IDENT) "{" (clause)+ (def_clause)* "}"
 case       : "kalo" (NUMBER | STRING) ":" ((stmt)* )+ ("berhenti")*
 def_case   : "lainnya" ":" (stmt)*
-func_call  : IDENT "()"
 
 
 //basic expression
@@ -54,6 +54,8 @@ factor     : unary (("*" | "/") unary)*
 unary      : ("!" | "-")* paren
 paren      : "(" or ")"
            | simplest
+           | call
+call       : IDENT "(" PARAM* ")"
 simplest   : BASIC_LIT | NUMBER | IDENT
 
 

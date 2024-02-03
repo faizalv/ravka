@@ -93,9 +93,7 @@ func (ParenExpr) nodeExpr()  {}
 func (Ident) nodeExpr()      {}
 func (BasicLit) nodeExpr()   {}
 func (FuncType) nodeExpr()   {}
-func (CallExpr) name() {
-
-}
+func (CallExpr) nodeExpr()   {}
 
 // Expr end
 

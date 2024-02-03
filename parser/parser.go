@@ -153,12 +153,15 @@ func (p *Parser) parseDecls() (ast.Decls, error) {
 		Loc: p.getPosition(),
 		Val: []ast.Decl{},
 	}
-	decl, e := p.parseFuncDecl()
-	if e != nil {
-		return ast.Decls{}, e
-	}
 
-	decls.Val = append(decls.Val, decl)
+	for p.getCurrentToken().Kind != token.EOF {
+		decl, e := p.parseFuncDecl()
+		if e != nil {
+			return ast.Decls{}, e
+		}
+
+		decls.Val = append(decls.Val, decl)
+	}
 
 	return decls, nil
 }
