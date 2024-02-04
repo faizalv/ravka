@@ -184,6 +184,7 @@ func (CaseClause) node() {}
 func (ForStmt) node()    {}
 func (BranchStmt) node() {}
 func (IncDecStmt) node() {}
+func (ExprStmt) node()   {}
 func (BinaryExpr) node() {}
 func (UnaryExpr) node()  {}
 func (ParenExpr) node()  {}
@@ -192,3 +193,4 @@ func (Decls) node()      {}
 func (FuncDecl) node()   {}
 func (BasicLit) node()   {}
 func (FuncType) node()   {}
+func (CallExpr) node()   {}

@@ -17,15 +17,11 @@ func main() {
 	symbol := storage.NewSymbol()
 	jumper := storage.NewJumper()
 	lx := lexer.NewLexer()
-	parseRuntime := runtime.NewParseRuntime(lx, jumper)
-	exprParser := parser.NewExprMaster(parseRuntime)
-	stmtParser := parser.NewStmtMaster(parseRuntime)
-	//languageParser, e := parser.NewParser(parseRuntime, stmtParser, exprParser)
-	//if e != nil {
-	//	println(e.Error())
-	//	stdout()
-	//}
-	//mainRuntimeContainer := runtime.GetRuntimeContainer(parseRuntime)
+	parseRuntime := runtime.NewParseRuntime(lx)
+	mainRuntimeContainer := runtime.GetRuntimeContainer(parseRuntime, symbol, jumper)
+	exprParser := parser.NewExprMaster(mainRuntimeContainer)
+	stmtParser := parser.NewStmtMaster(mainRuntimeContainer)
+	languageParser := parser.NewParser(mainRuntimeContainer, stmtParser, exprParser)
 	stdout()
 	for scanner.Scan() {
 		input := scanner.Text()
@@ -50,7 +46,6 @@ func main() {
 				}
 
 				inputType = lexer.FILE
-				symbol = storage.NewSymbol()
 				jumper.CleanUp()
 			} else {
 				print("Empty bro")
@@ -81,14 +76,14 @@ func main() {
 			continue
 		}
 
-		prs, e := parser.NewParser(parseRuntime, stmtParser, exprParser)
+		e = languageParser.Prepare()
 		if e != nil {
 			println(e.Error())
 			stdout()
 			continue
 		}
 
-		engine := interpreter.NewInterpreter(prs, vst)
+		engine := interpreter.NewInterpreter(languageParser, vst)
 		e = engine.Interpret()
 		if e != nil {
 			println(e.Error())
@@ -97,7 +92,7 @@ func main() {
 		}
 
 		stdout()
-		parseRuntime.Reset()
+		mainRuntimeContainer.Flush()
 	}
 }
 

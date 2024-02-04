@@ -5,7 +5,6 @@ import (
 
 	"ravka/ast"
 	"ravka/lexer"
-	"ravka/storage"
 	"ravka/token"
 )
 
@@ -16,10 +15,6 @@ type ParseInterface interface {
 	GetInputType() int
 	ShouldUseJumper() bool
 	UseJumper(state bool)
-	SetJumperGroupId(groupId string)
-	SetJumperDefaultClause(listStmt []ast.Stmt)
-	SetJumperAlias(alias string, targetKey string)
-	SetJumperByKey(key string, stmtList []ast.Stmt)
 	Init() error
 	Reset()
 }
@@ -27,15 +22,13 @@ type ParseInterface interface {
 type ParseRuntime struct {
 	lexer        lexer.Interface
 	currentToken *token.Token
-	jumper       storage.JumperInterface
 	useJumper    bool
 }
 
-func NewParseRuntime(lexer lexer.Interface, jumper storage.JumperInterface) *ParseRuntime {
+func NewParseRuntime(lexer lexer.Interface) *ParseRuntime {
 	return &ParseRuntime{
 		lexer:        lexer,
 		currentToken: nil,
-		jumper:       jumper,
 		useJumper:    false,
 	}
 }
@@ -65,22 +58,6 @@ func (p *ParseRuntime) UseJumper(state bool) {
 
 func (p *ParseRuntime) ShouldUseJumper() bool {
 	return p.useJumper
-}
-
-func (p *ParseRuntime) SetJumperGroupId(id string) {
-	p.jumper.SetGroupId(id)
-}
-
-func (p *ParseRuntime) SetJumperDefaultClause(stmtList []ast.Stmt) {
-	p.jumper.SetDefault(stmtList)
-}
-
-func (p *ParseRuntime) SetJumperAlias(alias string, targetKey string) {
-	p.jumper.SetAlias(alias, targetKey)
-}
-
-func (p *ParseRuntime) SetJumperByKey(key string, stmtList []ast.Stmt) {
-	p.jumper.SetByKey(key, stmtList)
 }
 
 func (p *ParseRuntime) ConsumeToken(kind token.Kind) error {

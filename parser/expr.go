@@ -27,9 +27,9 @@ type ExprMaster struct {
 	stmtHandler  func() (ast.Stmt, error)
 }
 
-func NewExprMaster(parseRuntime runtime.ParseInterface) *ExprMaster {
+func NewExprMaster(runtime runtime.ContainerInterface) *ExprMaster {
 	return &ExprMaster{
-		parseRuntime: parseRuntime,
+		parseRuntime: runtime.GetParseRuntime(),
 	}
 }
 

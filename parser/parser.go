@@ -10,32 +10,37 @@ import (
 )
 
 type Parser struct {
-	parseRuntime runtime.ParseInterface
-	stmtMaster   StmtMasterInterface
-	exprMaster   ExprMasterInterface
+	runtimeContainer runtime.ContainerInterface
+	parseRuntime     runtime.ParseInterface
+	stmtMaster       StmtMasterInterface
+	exprMaster       ExprMasterInterface
 }
 
 type EntrypointInterface interface {
 	Parse() (ast.Node, error)
+	Prepare() error
 }
 
-func NewParser(parseRuntime runtime.ParseInterface, stmtMaster StmtMasterInterface, exprMaster ExprMasterInterface) (*Parser, error) {
-	instance := &Parser{
-		parseRuntime: parseRuntime,
-		stmtMaster:   stmtMaster,
-		exprMaster:   exprMaster,
-	}
-
+func NewParser(runtime runtime.ContainerInterface, stmtMaster StmtMasterInterface, exprMaster ExprMasterInterface) *Parser {
 	stmtMaster.SetBinaryExprValidator(exprMaster.ValidateBinaryExpr)
 	stmtMaster.SetExprHandler(exprMaster.ParseExpr)
 	exprMaster.SetStmtHandler(stmtMaster.ParseStatement)
 
-	e := instance.parseRuntime.Init()
+	return &Parser{
+		runtimeContainer: runtime,
+		parseRuntime:     runtime.GetParseRuntime(),
+		stmtMaster:       stmtMaster,
+		exprMaster:       exprMaster,
+	}
+}
+
+func (p *Parser) Prepare() error {
+	e := p.parseRuntime.Init()
 	if e != nil {
-		return nil, e
+		return e
 	}
 
-	return instance, nil
+	return nil
 }
 
 func (p *Parser) getCurrentToken() *token.Token {
@@ -158,6 +163,10 @@ func (p *Parser) parseDecls() (ast.Decls, error) {
 		decl, e := p.parseFuncDecl()
 		if e != nil {
 			return ast.Decls{}, e
+		}
+
+		if decl.Name.Name != runtime.MainEntrypointFuncName {
+			p.runtimeContainer.StoreFuncDecl(decl.Name.Name, &decl.Body, &decl.Type)
 		}
 
 		decls.Val = append(decls.Val, decl)

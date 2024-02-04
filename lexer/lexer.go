@@ -306,13 +306,13 @@ func (l *Lexer) GetNextToken() (*token.Token, error) {
 			newToken := token.NewToken(token.STRING, str)
 			return &newToken, nil
 		} else if unicode.IsLetter([]rune(currentChar)[0]) {
-			word := l.bindLetter()
+			ident := l.bindLetter()
 			keywords := token.GetKeywords()
 			var newToken token.Token
-			if kind, exists = keywords[word]; exists {
-				newToken = token.NewToken(kind, word)
+			if kind, exists = keywords[ident]; exists {
+				newToken = token.NewToken(kind, ident)
 			} else {
-				newToken = token.NewToken(token.IDENT, word)
+				newToken = token.NewToken(token.IDENT, ident)
 			}
 			return &newToken, nil
 		} else if _, e := strconv.Atoi(currentChar); e == nil {

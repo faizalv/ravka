@@ -23,13 +23,15 @@ type StmtMasterInterface interface {
 
 type StmtMaster struct {
 	parseRuntime        runtime.ParseInterface
+	runtimeContainer    runtime.ContainerInterface
 	exprHandler         func() (ast.Expr, error)
 	binaryExprValidator func(node ast.Node) (ast.Expr, error)
 }
 
-func NewStmtMaster(parseRuntime runtime.ParseInterface) *StmtMaster {
+func NewStmtMaster(runtime runtime.ContainerInterface) *StmtMaster {
 	return &StmtMaster{
-		parseRuntime: parseRuntime,
+		runtimeContainer: runtime,
+		parseRuntime:     runtime.GetParseRuntime(),
 	}
 }
 
@@ -172,7 +174,7 @@ func (s *StmtMaster) parseCheckStmt() (ast.CheckStmt, error) {
 	}
 
 	s.parseRuntime.UseJumper(true)
-	s.parseRuntime.SetJumperGroupId(checkId)
+	s.runtimeContainer.SetJumperGroupId(checkId)
 	block, e := s.parseBlockStmt()
 	s.parseRuntime.UseJumper(false)
 	if e != nil {
@@ -301,7 +303,7 @@ func (s *StmtMaster) parseCaseClause() (ast.CaseClause, error) {
 					jumperId = "paren-" + typed.Loc.GetCoordinate()
 				}
 
-				s.parseRuntime.SetJumperAlias(jumperId, parentJumperId)
+				s.runtimeContainer.SetJumperAlias(jumperId, parentJumperId)
 			}
 
 			if s.getCurrentToken().Kind != token.COLON {
@@ -335,7 +337,7 @@ func (s *StmtMaster) parseCaseClause() (ast.CaseClause, error) {
 		_, stop = checkClauseBrake[s.getCurrentToken().Kind]
 	}
 
-	s.parseRuntime.SetJumperByKey(parentJumperId, stmtList)
+	s.runtimeContainer.SetJumperByKey(parentJumperId, stmtList)
 
 	return ast.CaseClause{
 		Loc:  pos,
@@ -378,7 +380,7 @@ func (s *StmtMaster) parseDefaultCaseClause() (ast.CaseClause, error) {
 		_, stop = checkClauseBrake[s.getCurrentToken().Kind]
 	}
 
-	s.parseRuntime.SetJumperDefaultClause(stmtList)
+	s.runtimeContainer.SetJumperDefaultClause(stmtList)
 
 	return ast.CaseClause{
 		Loc:  pos,
@@ -494,6 +496,25 @@ func (s *StmtMaster) parseAssignStmt() (ast.Node, error) {
 				LHS: v,
 				Op:  currentToken,
 				RHS: rhs,
+			}
+		} else if s.getCurrentToken().Kind == token.LPAREN {
+			e = s.consume(token.LPAREN)
+			if e != nil {
+				return nil, e
+			}
+
+			e = s.consume(token.RPAREN)
+			if e != nil {
+				return nil, e
+			}
+
+			node = ast.ExprStmt{
+				Loc: pos,
+				X: ast.CallExpr{
+					Loc:  pos,
+					Args: nil,
+					Fun:  v,
+				},
 			}
 		}
 	}

@@ -10,8 +10,8 @@ import (
 type SymbolInterface interface {
 	StoreVar(ident string, val string, kind token.Kind)
 	GetVar(ident string) (token.Token, error)
-	StoreFunc(ident string, block ast.BlockStmt, typ ast.FuncType)
-	GetFunc(ident string) (ast.BlockStmt, ast.FuncType)
+	StoreFunc(ident string, block *ast.BlockStmt, typ *ast.FuncType)
+	GetFunc(ident string) (*ast.BlockStmt, *ast.FuncType)
 }
 
 type varVal struct {
@@ -20,8 +20,8 @@ type varVal struct {
 }
 
 type funVal struct {
-	block ast.BlockStmt
-	typ   ast.FuncType
+	block *ast.BlockStmt
+	typ   *ast.FuncType
 }
 
 type Symbol struct {
@@ -51,17 +51,17 @@ func (s *Symbol) GetVar(ident string) (token.Token, error) {
 	return token.Token{}, errors.New(" variabel " + ident + " tidak terdefinisi")
 }
 
-func (s *Symbol) StoreFunc(ident string, block ast.BlockStmt, typ ast.FuncType) {
+func (s *Symbol) StoreFunc(ident string, block *ast.BlockStmt, typ *ast.FuncType) {
 	s.fns[ident] = funVal{
 		block: block,
 		typ:   typ,
 	}
 }
 
-func (s *Symbol) GetFunc(ident string) (ast.BlockStmt, ast.FuncType) {
+func (s *Symbol) GetFunc(ident string) (*ast.BlockStmt, *ast.FuncType) {
 	if f, exists := s.fns[ident]; exists {
 		return f.block, f.typ
 	}
 
-	return ast.BlockStmt{}, ast.FuncType{}
+	return nil, nil
 }

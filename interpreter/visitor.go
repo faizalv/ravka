@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"ravka/ast"
+	"ravka/runtime"
 	"ravka/storage"
 	"ravka/token"
 )
@@ -52,6 +53,23 @@ func (v *Visitor) visitParenExpr(node ast.ParenExpr) (*crate, error) {
 	}
 
 	return x, nil
+}
+
+func (v *Visitor) visitExprStmt(node ast.ExprStmt) error {
+	_, e := v.visit(node.X)
+	if e != nil {
+		return e
+	}
+	return nil
+}
+
+func (v *Visitor) visitCallExpr(node ast.CallExpr) (*crate, error) {
+	block, _ := v.symbol.GetFunc(node.Fun.Name)
+	if block == nil {
+		return nil, errors.New(" visitor eror: fungsi " + node.Fun.Name + " tidak terdefinisi")
+	}
+
+	return v.visit(*block)
 }
 
 func (v *Visitor) visitAssignStmt(node ast.AssignStmt) error {
@@ -378,6 +396,9 @@ func (v *Visitor) visitBlockStmt(node ast.BlockStmt) error {
 }
 
 func (v *Visitor) visitFuncDeclStmt(node ast.FuncDecl) error {
+	if node.Name.Name != runtime.MainEntrypointFuncName {
+		return nil
+	}
 	return v.visitBlockStmt(node.Body)
 }
 
@@ -602,12 +623,16 @@ func (v *Visitor) visit(node ast.Node) (*crate, error) {
 		return nil, v.visitForStmt(nTyped)
 	case ast.PrintStmt:
 		return nil, v.visitPrintStmt(nTyped)
+	case ast.ExprStmt:
+		return nil, v.visitExprStmt(nTyped)
 	case ast.BinaryExpr:
 		return v.visitBinaryExpr(nTyped)
 	case ast.UnaryExpr:
 		return v.visitUnaryExpr(nTyped)
 	case ast.ParenExpr:
 		return v.visitParenExpr(nTyped)
+	case ast.CallExpr:
+		return v.visitCallExpr(nTyped)
 	case ast.BasicLit:
 		return v.visitBasicLit(nTyped)
 	case ast.Ident:
